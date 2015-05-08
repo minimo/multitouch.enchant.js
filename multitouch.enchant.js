@@ -1,7 +1,7 @@
 /*
 
     multitouch.enchant.js
-    enchant.js用マルチタッチ制御クラス
+    enchant.js multitouch control plugin
     2013/07/12
     This program is MIT lisence.
 
@@ -15,13 +15,13 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
     initialize: function(parent, infoLayer) {
         enchant.Group.call(this);
 
-        this.touchID = 0;       //タッチＩＤ
-        this.touchList = [];    //タッチ内容保存
+        this.touchID = 0;
+        this.touchList = [];    // Save touch content.
 
-        //マルチタッチ対応フラグ
+        //Multi-touch enabled flag
         this.enable = false;
 
-        //iOSとAndroid以外はシングルタッチとして動作
+        //It operates as a single-touch except iOS and Android
         if ((navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('iPad') == -1) || navigator.userAgent.indexOf('iPod') > 0) {
             this.enable = true;
         } else if (navigator.userAgent.indexOf('Android') > 0) {
@@ -42,7 +42,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
 	        	}
                 this.parentNode.addChild(l0);
 
-                //タッチ座標の表示
+                // Display touch coordinates.
                 this.ls = [];
                 for (var i = 0; i < 5; i++) {
                     var lb = this.ls[i] = new Label("");

@@ -1,6 +1,6 @@
- /*
+/*
 
-    multitouch.enchant.js　サンプル
+    multitouch.enchant.js Sample
 	2013/08/08
 	This program is MIT lisence.
 
@@ -8,20 +8,20 @@
 
 enchant();
 
-//乱数発生 0～max-1
+// randomize 0～max-1
 var rand = function(max){ return ~~(Math.random() * max); }
 var sec = function(s){ return ~~(s*game.fps); };
-var toRad = 3.14159/180;    //弧度法toラジアン変換
-var toDeg = 180/3.14159;    //ラジアンto弧度法変換
+var toRad = 3.14159/180;    //degree to radian
+var toDeg = 180/3.14159;    //redian to degree
 
-var userAgent = "";		//実行ブラウザ種別
-var soundEnable = true;	//サウンド再生可能フラグ
-var smartphone = false;	//スマホ判定
+var userAgent = "";		//Browser
+var soundEnable = true;	//Sound enable flag
+var smartphone = false;	//detect smartphone
 
 var floor = 1;
 
 window.onload = function() {
-	//実行ブラウザ取得
+	//running browser
 	if( (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('iPad') == -1) || navigator.userAgent.indexOf('iPod') > 0 ){
 		userAgent = "iOS";
 		soundEnable = false;
@@ -67,10 +67,10 @@ MainScene = enchant.Class.create(enchant.Scene, {
         enchant.Scene.call(this);
         this.backgroundColor = 'rgb(0,0,0)';
         
-        //タッチＩＤ用カウンタ
+        // touch ID counter.
         this.touchID = 0;
 
-        //タッチ数表示
+        // Display number of touch.
         var l0 = this.l0 = new Label("number:0");
         l0.x = 10;
         l0.y = 10;
@@ -78,7 +78,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
 		l0.font = "bold";
         this.addChild(l0);
 
-        //タッチ座標の表示
+        // Display coordinate of touch.
         this.ls = [];
         for (var i = 0; i < 5; i++) {
             var lb = this.lb = new Label("");
@@ -91,19 +91,19 @@ MainScene = enchant.Class.create(enchant.Scene, {
         }
         this.touches = [];
 
-        //モード管理
+        // Management mode
         this.mode = 0;
         this.modeBefore = -1;
         this.maxnumber = 0;
         this.touchTime = 0;
         
-        //ライン描画準備
+        // Line drawing preparation
         var scr = this.scr = new Sprite(320, 320);
         var srf = new Surface(320, 320);
         scr.image = srf;
         this.addChild(scr);
 
-        //クマ
+        // Sprite
         var spr = this.sprite = new Sprite(32, 32);
         spr.image = game.assets['media/space3.png'];
         spr.frame = 5;
@@ -115,7 +115,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         }
         this.addChild(spr);
 
-        //ピンチインアウト用
+        // Pinch in - out
         this.dis = 0;
         this.disStart = 0;
         this.disBefore = 0;
@@ -124,7 +124,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.rotBefore = 0;
     },
     onenterframe: function() {
-        //タッチ数とタッチ座標の表示
+        // Display number of touch and coordinate of touch.
         this.l0.text = "number:"+this.touches.length;
         for ( var i = 0; i < 5; i++) {
             if (this.touches[i]) {
@@ -134,12 +134,12 @@ MainScene = enchant.Class.create(enchant.Scene, {
             }
         }
 
-        //複数タッチテスト
+        // Multi touch test
         if (this.mode == 0) {
             if (this.mode != this.modeBefore) {
                 this.sprite.visible = false;
             }
-            //線を引く
+            // Draw line.
             this.scr.image.clear();
             if (this.touches.length > 1) {
                 var context = this.scr.image.context;
@@ -154,14 +154,14 @@ MainScene = enchant.Class.create(enchant.Scene, {
             }
         }
 
-        //回転拡大縮小
+        // Rotation and scaling
         if (this.mode == 1) {
-            //初期化処理
+            // Initialize
             if (this.mode != this.modeBefore) {
                 this.sprite.visible = true;
                 this.disStart = this.disBefore = -1;
             }
-            //タッチが複数の場合
+            // Multi-touch case
             if (this.touches.length > 1) {
                 //１つめと２つめの距離と角度算出
                 var x1 = this.touches[0].x;
