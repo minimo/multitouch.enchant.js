@@ -14,36 +14,7 @@ var sec = function(s){ return ~~(s*game.fps); };
 var toRad = 3.14159/180;    //degree to radian
 var toDeg = 180/3.14159;    //redian to degree
 
-var userAgent = "";		//Browser
-var soundEnable = true;	//Sound enable flag
-var smartphone = false;	//detect smartphone
-
-var floor = 1;
-
 window.onload = function() {
-	//running browser
-	if( (navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('iPad') == -1) || navigator.userAgent.indexOf('iPod') > 0 ){
-		userAgent = "iOS";
-		soundEnable = false;
-		smartphone = true;
-	}else if( navigator.userAgent.indexOf('Android') > 0){
-		userAgent = "Android";
-		soundEnable = false;
-		smartphone = true;
-	}else if( navigator.userAgent.indexOf('Chrome') > 0){
-		userAgent = "Chrome";
-	}else if( navigator.userAgent.indexOf('Firefox') > 0){
-		userAgent = "Firefox";
-		soundEnable = false;
-	}else if( navigator.userAgent.indexOf('Safari') > 0){
-		userAgent = "Safari";
-		soundEnable = false;
-	}else if( navigator.userAgent.indexOf('IE') > 0){
-		userAgent = "IE";
-	}else{
-		userAgent = "unknown";
-	}
-
     game = new Core(320, 320);
     game.fps = 30;
     game.preload(
@@ -66,9 +37,8 @@ MainScene = enchant.Class.create(enchant.Scene, {
     initialize: function() {
         enchant.Scene.call(this);
         this.backgroundColor = 'rgb(0,0,0)';
-        
-        // touch ID counter.
-        this.touchID = 0;
+
+        this.multiTouch = MultiTouch(this);
 
         // Display number of touch.
         var l0 = this.l0 = new Label("number:0");
@@ -123,6 +93,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.rotStart = 0;
         this.rotBefore = 0;
     },
+
     onenterframe: function() {
         // Display number of touch and coordinate of touch.
         this.l0.text = "number:"+this.touches.length;
@@ -195,6 +166,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.modeBefore = this.mode;
         this.touchTime++;
     },
+
     //操作系
     ontouchstart: function(e) {
         //タッチ一回目の場合、タッチ時間リセット
@@ -219,6 +191,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         }
         this.touchID++;
     },
+
     ontouchmove: function(e) {
         //一番近いポインタを移動したものとして処理を行う
         var min = 99999;
@@ -235,6 +208,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.touches[target].x = e.x-8;
         this.touches[target].y = e.y-8;
     },
+
     ontouchend: function(e) {
         //一番近いポインタを移動したものとして処理を行う
         var min = 99999;

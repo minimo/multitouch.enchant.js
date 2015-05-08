@@ -9,123 +9,117 @@
 
 enchant();
 
-DEBUG_MULTITOUCH = true;
-
 enchant.MultiTouch = enchant.Class.create(enchant.Group, {
-    initialize: function(parent, infoLayer) {
+
+    // Touch ID counter.
+    touchID: 0,
+
+    // List of touch.
+    touchList: null,
+
+    // Multi-Touch enable flag.
+    enableMultiTouch: false,
+
+    // Parent Scene
+    scene: null,
+
+    initialize: function(scene) {
         enchant.Group.call(this);
 
+        this.scene = scene;
         this.touchID = 0;
-        this.touchList = [];    // Save touch content.
+        this.touchList = [];
 
         //Multi-touch enabled flag
-        this.enable = false;
+        this.enableMultiTouch = false;
 
         //It operates as a single-touch except iOS and Android
         if ((navigator.userAgent.indexOf('iPhone') > 0 && navigator.userAgent.indexOf('iPad') == -1) || navigator.userAgent.indexOf('iPod') > 0) {
-            this.enable = true;
+            this.enableMultiTouch = true;
         } else if (navigator.userAgent.indexOf('Android') > 0) {
-            this.enable = true;
+            this.enableMultiTouch = true;
         } else {
+            this.enableMultiTouch = false;
         }
 
-        if (DEBUG_MULTITOUCH) {
-            this.addEventListener('addedtoscene', function() {
-                var l0 = this.l0 = new Label("number:0");
-                l0.x = 0;
-                l0.y = 60;
-		        l0.color = "#ffffff";
-	        	l0.font = "bold";
-    	    	l0.parent = this;
-	    	    l0.onenterframe = function() {
-	        	    this.text = "number:"+this.parent.touchList.length;
-	        	}
-                this.parentNode.addChild(l0);
+        // Event listner for parent scene.
+        var self = this;
 
-                // Display touch coordinates.
-                this.ls = [];
-                for (var i = 0; i < 5; i++) {
-                    var lb = this.ls[i] = new Label("");
-                    lb.x = 10;
-                    lb.y = 70+i*10;
-		            lb.color = "#ffffff";
-        		    lb.font = "bold";
-    	    	    lb.onenterframe = function() {
-    	        	}
-                    this.addChild(lb);
-                }
-            });
-        }
-    },
-    onenterframe: function() {
-        if (DEBUG_MULTITOUCH) {
-            for ( var i = 0; i < 5; i++) {
-                if (this.touchList[i]) {
-                    this.ls[i].text= "touch:"+(i+1)+": x = "+~~this.touchList[i].x+": y = "+~~this.touchList[i].y;
-                } else {
-                    this.ls[i].text= "";
-                }
+        // Intercept touchstart to touchesstart.
+        scene.addEventListener("touchstart", function(e) {
+            if (self.enableMultiTouch) {
+                self.touchList.push({ id: self.touchID, x: e.x, y: e.y, time: 0 });
+                e.ID = self.touchID;
+                this.ontouchesstart(e);
+                self.touchID++;
+            } else {
+                self.touchList[0] = { id: 0, x: e.x, y: e.y, time: 0 };
+                e.ID = 0;
+                this.ontouchesstart(e);
             }
-        }
-    },
-    start: function(e) {
-        if (this.enable) {
-            var id = this.touchID;
-            this.touchList.push({ id: this.touchID, x: e.x, y: e.y, time:0 });
-            this.touchID++;
-            return id;
-        } else {
-            this.touchList[0] = { id: 0, x: e.x, y: e.y, time:0 };
-            return 0;
-        }
-    },
-    move: function(e) {
-        if (this.enable) {
-            var min = 99999999;
-            var target = 9999;
-            for (var i = 0, len = this.touchList.length; i < len; i++) {
-                var x = e.x - this.touchList[i].x;
-                var y = e.y - this.touchList[i].y;
-//                var dis = Math.sqrt(x * x + y * y);
-                var dis = (x * x + y * y);
-                if (dis < min) {
-                    target = i;
-                    min = dis;
+        });
+
+        // Intercept touchmove to touchesmove.
+        scene.addEventListener("touchmove", function(e) {
+            if (self.enableMultiTouch) {
+                var min = 99999999;
+                var target = 9999;
+                for (var i = 0, len = self.touchList.length; i < len; i++) {
+                    var x = e.x - self.touchList[i].x;
+                    var y = e.y - self.touchList[i].y;
+                    var dis = (x*x+y*y);
+                    if (dis < min) {
+                        target = i;
+                        min = dis;
+                    }
                 }
+                self.touchList[target].x = e.x;
+                self.touchList[target].y = e.y;
+
+                e.ID = self.touchList[target].id;
+                e.time = self.touchList[target].time+1;
+                this.ontouchesmove(e);
+            } else {
+                self.touchList[0] = {id:0, x: e.x, y: e.y};
+                e.ID = 0;
+                this.ontouchesmove(e);
             }
-            this.touchList[target].x = e.x;
-            this.touchList[target].y = e.y;
-            return this.touchList[target].id;
-        } else {
-            this.touchList[0] = {id:0, x:e.x, y:e.y};
-            return 0;
-        }
-    },
-    end: function(e) {
-        if (this.enable) {
-            var min = 99999999;
-            var target = 9999;
-            for (var i = 0, len = this.touchList.length; i < len; i++) {
-                var x = e.x - this.touchList[i].x;
-                var y = e.y - this.touchList[i].y;
-//                var dis = Math.sqrt(x * x + y * y);
-                var dis = (x * x + y * y);
-                if (dis < min) {
-                    target = i;
-                    min = dis;
+        });
+
+        // Intercept touchend to touchesend.
+        scene.addEventListener("touchend",function(e) {
+            if (self.enableMultiTouch) {
+                var min = 99999999;
+                var target = 9999;
+                for (var i = 0, len = self.touchList.length; i < len; i++) {
+                    var x = e.x - self.touchList[i].x;
+                    var y = e.y - self.touchList[i].y;
+                    var dis = (x*x+y*y);
+                    if (dis < min) {
+                        target = i;
+                        min = dis;
+                    }
                 }
+                self.touchList[target].x = e.x;
+                self.touchList[target].y = e.y;
+
+                e.ID = self.touchList[target].id;
+                e.time = self.touchList[target].time+1;
+                this.ontouchesmove(e);
+            } else {
+                self.touchList[0] = {id:0, x: e.x, y: e.y};
+                e.ID = 0;
+                this.ontouchesmove(e);
             }
-            var id = this.touchList[target].id;
-            this.touchList.splice(target, 1);
-            return id;
-        } else {
-            this.touchList = [];
-            return 0;
-        }
+        });
     },
-    numTouch: function() {
+
+    // Number of touch
+    numTouches: function() {
         return this.touchList.length;
     },
+
+    // Force reset multi-touch
     reset: function() {
         this.touchID = 0;
         this.touchList = [];
