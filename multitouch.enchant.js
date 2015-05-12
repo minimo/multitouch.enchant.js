@@ -50,7 +50,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
             if (self.enableMultiTouch) {
                 self.touchList.push({ id: self.touchID, x: e.x, y: e.y});
                 var evt = new enchant.Event("touchesstart");
-                evt.ID = self.touchID;
+                evt.id = self.touchID;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
@@ -58,7 +58,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
             } else {
                 self.touchList[0] = { id: 0, x: e.x, y: e.y};
                 var evt = new enchant.Event("touchesstart");
-                evt.ID = self.touchID;
+                evt.id = self.touchID;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
@@ -83,7 +83,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 self.touchList[target].y = e.y;
 
                 var evt = new enchant.Event("touchesmove");
-                evt.ID = self.touchList[target].id;
+                evt.id = self.touchList[target].id;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
@@ -91,7 +91,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 self.touchList[0] = {id:0, x: e.x, y: e.y};
 
                 var evt = new enchant.Event("touchesmove");
-                evt.ID = 0;
+                evt.id = 0;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
@@ -113,7 +113,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                     }
                 }
                 var evt = new enchant.Event("touchesend");
-                evt.ID = self.touchList[target].id;
+                evt.id = self.touchList[target].id;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
@@ -124,7 +124,7 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 self.touchList[0] = {id:0, x: e.x, y: e.y};
 
                 var evt = new enchant.Event("touchesend");
-                evt.ID = 0;
+                evt.id = 0;
                 evt.x = e.x;
                 evt.y = e.y;
                 this.dispatchEvent(evt);
