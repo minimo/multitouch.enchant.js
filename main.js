@@ -18,10 +18,8 @@ window.onload = function() {
     game = new Core(320, 320);
     game.fps = 30;
     game.preload(
-        'media/icon0.png', 'media/arrow.png', 'media/space3.png'
+        'media/icon0.png', 'media/arrow.png'
     );
-    if (soundEnable) {
-    }
 
     //Keybind
     game.keybind(32,'space');
@@ -38,7 +36,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         enchant.Scene.call(this);
         this.backgroundColor = 'rgb(0,0,0)';
 
-        this.multiTouch = MultiTouch(this);
+        this.multiTouch = new MultiTouch(this);
 
         // Display number of touch.
         var l0 = this.l0 = new Label("number:0");
