@@ -48,14 +48,20 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
         // Intercept touchstart to touchesstart.
         scene.addEventListener("touchstart", function(e) {
             if (self.enableMultiTouch) {
-                self.touchList.push({ id: self.touchID, x: e.x, y: e.y, time: 0 });
-                e.ID = self.touchID;
-                this.ontouchesstart(e);
+                self.touchList.push({ id: self.touchID, x: e.x, y: e.y});
+                var evt = new enchant.Event("touchesstart");
+                evt.ID = self.touchID;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
                 self.touchID++;
             } else {
-                self.touchList[0] = { id: 0, x: e.x, y: e.y, time: 0 };
-                e.ID = 0;
-                this.ontouchesstart(e);
+                self.touchList[0] = { id: 0, x: e.x, y: e.y};
+                var evt = new enchant.Event("touchesstart");
+                evt.ID = self.touchID;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
             }
         });
 
@@ -76,13 +82,19 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 self.touchList[target].x = e.x;
                 self.touchList[target].y = e.y;
 
-                e.ID = self.touchList[target].id;
-                e.time = self.touchList[target].time+1;
-                this.ontouchesmove(e);
+                var evt = new enchant.Event("touchesmove");
+                evt.ID = self.touchList[target].id;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
             } else {
                 self.touchList[0] = {id:0, x: e.x, y: e.y};
-                e.ID = 0;
-                this.ontouchesmove(e);
+
+                var evt = new enchant.Event("touchesmove");
+                evt.ID = 0;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
             }
         });
 
@@ -100,17 +112,24 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                         min = dis;
                     }
                 }
-                self.touchList[target].x = e.x;
-                self.touchList[target].y = e.y;
+                var evt = new enchant.Event("touchesend");
+                evt.ID = self.touchList[target].id;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
 
-                e.ID = self.touchList[target].id;
-                e.time = self.touchList[target].time+1;
-                this.ontouchesmove(e);
+                // Remove touchID from touche list
                 self.touchList.splice(target, 1);
             } else {
                 self.touchList[0] = {id:0, x: e.x, y: e.y};
-                e.ID = 0;
-                this.ontouchesmove(e);
+
+                var evt = new enchant.Event("touchesend");
+                evt.ID = 0;
+                evt.x = e.x;
+                evt.y = e.y;
+                this.dispatchEvent(evt);
+
+                // Remove touchID from touche list
                 self.touchList.splice(0, 1);
             }
         });
