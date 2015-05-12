@@ -106,10 +106,12 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 e.ID = self.touchList[target].id;
                 e.time = self.touchList[target].time+1;
                 this.ontouchesmove(e);
+                self.touchList.splice(target, 1);
             } else {
                 self.touchList[0] = {id:0, x: e.x, y: e.y};
                 e.ID = 0;
                 this.ontouchesmove(e);
+                self.touchList.splice(0, 1);
             }
         });
     },
@@ -119,8 +121,10 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
         return this.touchList.length;
     },
 
+    // Get touches list
     getTouchesList: function() {
-        return this.touchList;
+        // return copied list
+        return [].concat(this.touchList);
     },
 
     // Force reset multi-touch
