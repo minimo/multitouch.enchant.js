@@ -18,7 +18,7 @@ window.onload = function() {
     game = new Core(320, 320);
     game.fps = 30;
     game.preload(
-        'media/icon0.png', 'media/arrow.png'
+        'media/icon0.png', 'media/arrow.png', 'media/chara1.png'
     );
 
     //Keybind
@@ -40,6 +40,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         enchant.Scene.call(this);
         this.backgroundColor = 'rgb(0,0,0)';
 
+        // Initialize Multi-touch.
         this.multiTouch = new MultiTouch(this);
 
         // Display number of touch.
@@ -67,6 +68,9 @@ MainScene = enchant.Class.create(enchant.Scene, {
         var srf = new Surface(320, 320);
         scr.image = srf;
         this.addChild(scr);
+
+        // Pointer aray
+        this.pointers = [];
     },
 
     onenterframe: function() {
@@ -93,7 +97,9 @@ MainScene = enchant.Class.create(enchant.Scene, {
                 context.beginPath();
                 context.strokeStyle='rgb(255, 255, 255)';
                 context.moveTo(touchesList[0].x, touchesList[0].y);
-                for (var i = 1, len = touchesList.length; i < len; i++) {
+
+                var max = touchesList.length>5?5:touchesList.length;
+                for (var i = 1, len = max; i < len; i++) {
                     context.lineTo(touchesList[i].x, touchesList[i].y);
                 }
                 context.lineTo(touchesList[0].x, touchesList[0].y);
@@ -102,14 +108,32 @@ MainScene = enchant.Class.create(enchant.Scene, {
         }
     },
 
-    // Control
+    // touches control
     ontouchesstart: function(e) {
+		var sp = new Sprite(16, 16);
+		sp.image = game.assets['media/icon0.png'];
+        sp.frame = 20;
+        sp.id = e.id;
+        sp.x = e.x-8;
+        sp.y = e.y-8;
+        this.addChild(sp);
+        this.pointers[e.id] = sp;
     },
 
     ontouchesmove: function(e) {
+        var sp = this.pointers[e.id];
+        if (sp) {
+            sp.x = e.x-8;
+            sp.y = e.y-8;
+        }
     },
 
     ontouchesend: function(e) {
+        var sp = this.pointers[e.id];
+        if (sp) {
+            this.removeChild(sp);
+            this.pointers.splice(e.id, 1);
+        }
     },
 });
 
