@@ -116,6 +116,8 @@ MainScene = enchant.Class.create(enchant.Scene, {
         sp.id = e.id;
         sp.x = e.x-8;
         sp.y = e.y-8;
+        sp.scaleX = 2;
+        sp.scaleY = 2;
         this.addChild(sp);
         this.pointers[e.id] = sp;
     },
@@ -132,7 +134,14 @@ MainScene = enchant.Class.create(enchant.Scene, {
         var sp = this.pointers[e.id];
         if (sp) {
             this.removeChild(sp);
-            this.pointers.splice(e.id, 1);
+        }
+
+        if (this.multiTouch.numTouches == 0) {
+            if (this.pointers.length != 0) {
+                for(this.pointers in p) {
+                    this.removeChild(p);
+                }
+            }
         }
     },
 });
