@@ -132,7 +132,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
             }
             // Multi-touch case
             if (this.touches.length > 1) {
-                //１つめと２つめの距離と角度算出
+                // The first and the distance of the second and the angle calculation
                 var x1 = this.touches[0].x;
                 var y1 = this.touches[0].y;
                 var x2 = this.touches[1].x;
@@ -165,12 +165,12 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.touchTime++;
     },
 
-    //操作系
+    // Control
     ontouchstart: function(e) {
-        //タッチ一回目の場合、タッチ時間リセット
+        // In the case of touch first time , touch time reset
         if (this.touches.length == 0)this.touchTime = 0;
         
-        //ポインタ表示
+        // Display pointer
         param = new Sprite(16 ,16);
         param.image = game.assets['media/icon0.png'];
         param.x = e.x-8;
@@ -183,7 +183,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
         this.addChild(param);
         this.touches[this.touches.length] = param;  //タッチ配列に追加
 
-        //シーケンス内最大タッチ数
+        // Maximum touch number in the sequence
         if (this.touches.length > this.maxnumber) {
             this.maxnumber = this.touches.length;
         }
@@ -191,7 +191,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     ontouchmove: function(e) {
-        //一番近いポインタを移動したものとして処理を行う
+        // It does treated as if you move the nearest pointer
         var min = 99999;
         var target = 9999;
         for ( var i = 0, len = this.touches.length; i < len; i++) {
@@ -208,7 +208,7 @@ MainScene = enchant.Class.create(enchant.Scene, {
     },
 
     ontouchend: function(e) {
-        //一番近いポインタを移動したものとして処理を行う
+        // It does treated as if you move the nearest pointer
         var min = 99999;
         var target = 9999;
         for ( var i = 0, len = this.touches.length; i < len; i++) {
@@ -220,11 +220,11 @@ MainScene = enchant.Class.create(enchant.Scene, {
                 min = dis;
             }
         }
-        //タッチ終了したので削除
+        // Delete Because you touch the end
         this.removeChild(this.touches[target]);
         this.touches.splice(target, 1);
 
-        //シングルタッチだった場合モード変更（0.5秒以内）
+        // Change mode
         if (this.touches.length == 0 && this.touchTime < 15 ) {
             if (this.maxnumber == 1){
                 this.mode++;
