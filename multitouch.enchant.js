@@ -119,6 +119,10 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
         return this.touchList.length;
     },
 
+    getTouchesList: function() {
+        return this.touchList;
+    },
+
     // Force reset multi-touch
     reset: function() {
         this.touchID = 0;

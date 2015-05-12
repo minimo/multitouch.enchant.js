@@ -32,6 +32,10 @@ window.onload = function() {
 };
 
 MainScene = enchant.Class.create(enchant.Scene, {
+
+    // Demonstration mode
+    mode: 0,
+
     initialize: function() {
         enchant.Scene.call(this);
         this.backgroundColor = 'rgb(0,0,0)';
@@ -57,47 +61,21 @@ MainScene = enchant.Class.create(enchant.Scene, {
             this.addChild(lb);
             this.ls[this.ls.length] = lb;
         }
-        this.touches = [];
 
-        // Management mode
-        this.mode = 0;
-        this.modeBefore = -1;
-        this.maxnumber = 0;
-        this.touchTime = 0;
-        
         // Line drawing preparation
         var scr = this.scr = new Sprite(320, 320);
         var srf = new Surface(320, 320);
         scr.image = srf;
         this.addChild(scr);
-
-        // Sprite
-        var spr = this.sprite = new Sprite(32, 32);
-        spr.image = game.assets['media/space3.png'];
-        spr.frame = 5;
-        spr.x = 160-16;
-        spr.y = 160-16;
-        spr.onenterframe = function() {
-            if (this.age % 3 == 0)this.frame++;
-            if (this.frame > 7)this.frame = 5;
-        }
-        this.addChild(spr);
-
-        // Pinch in - out
-        this.dis = 0;
-        this.disStart = 0;
-        this.disBefore = 0;
-        this.rot = 0;
-        this.rotStart = 0;
-        this.rotBefore = 0;
     },
 
     onenterframe: function() {
         // Display number of touch and coordinate of touch.
-        this.l0.text = "number:"+this.touches.length;
+        this.l0.text = "number:"+this.multiTouch.numTouches();
+        var touchesList = this.multiTouch.getTouchesList();
         for ( var i = 0; i < 5; i++) {
-            if (this.touches[i]) {
-                this.ls[i].text= "touch:"+(i+1)+": x = "+~~this.touches[i].x+": y = "+~~this.touches[i].y;
+            if (touchesList[i]) {
+                this.ls[i].text= "touch:"+(i+1)+": x = "+~~touchesList[i].x+": y = "+~~touchesList[i].y;
             } else {
                 this.ls[i].text= "";
             }
@@ -105,133 +83,33 @@ MainScene = enchant.Class.create(enchant.Scene, {
 
         // Multi touch test
         if (this.mode == 0) {
+            // Mode Initialize
             if (this.mode != this.modeBefore) {
-                this.sprite.visible = false;
             }
             // Draw line.
             this.scr.image.clear();
-            if (this.touches.length > 1) {
+            if (touchesList.length > 1) {
                 var context = this.scr.image.context;
                 context.beginPath();
                 context.strokeStyle='rgb(255, 255, 255)';
-                context.moveTo(this.touches[0].x, this.touches[0].y);
-                for (var i = 1, len = this.touches.length; i < len; i++) {
-                    context.lineTo(this.touches[i].x, this.touches[i].y);
+                context.moveTo(touchesList[0].x, touchesList[0].y);
+                for (var i = 1, len = touchesList.length; i < len; i++) {
+                    context.lineTo(touchesList[i].x, touchesList[i].y);
                 }
-                context.lineTo(this.touches[0].x, this.touches[0].y);
+                context.lineTo(touchesList[0].x, touchesList[0].y);
                 context.stroke();
             }
         }
-
-        // Rotation and scaling
-        if (this.mode == 1) {
-            // Initialize
-            if (this.mode != this.modeBefore) {
-                this.sprite.visible = true;
-                this.disStart = this.disBefore = -1;
-            }
-            // Multi-touch case
-            if (this.touches.length > 1) {
-                // The first and the distance of the second and the angle calculation
-                var x1 = this.touches[0].x;
-                var y1 = this.touches[0].y;
-                var x2 = this.touches[1].x;
-                var y2 = this.touches[1].y;
-                var x = x2-x1;
-                var y = y2-y1;
-                this.dis = Math.sqrt(x*x+y*y);
-                this.rot = Math.atan2(x, y)*toDeg;
-                
-                if (this.disBefore == -1) {
-                    this.disStart = this.dis;
-                    this.disBefore = this.dis;
-                    this.rotStart = this.rot;
-                    this.rotBefore = this.rot;
-                }
-                this.sprite.scaleX += (this.dis-this.disBefore)/100;
-                this.sprite.scaleY += (this.dis-this.disBefore)/100;
-                if( this.sprite.scaleX < 0.2) {
-                    this.sprite.scaleX = 0.2;
-                    this.sprite.scaleY = 0.2;
-                }
-                this.sprite.rotation -= (this.rot-this.rotBefore);
-                this.disBefore = this.dis;
-                this.rotBefore = this.rot;
-            } else {
-                this.disStart = this.disBefore = -1;
-            }
-        }
-        this.modeBefore = this.mode;
-        this.touchTime++;
     },
 
     // Control
-    ontouchstart: function(e) {
-        // In the case of touch first time , touch time reset
-        if (this.touches.length == 0)this.touchTime = 0;
-        
-        // Display pointer
-        param = new Sprite(16 ,16);
-        param.image = game.assets['media/icon0.png'];
-        param.x = e.x-8;
-        param.y = e.y-8;
-        param.frame = 20;
-        param.scaleX = 3;
-        param.scaleY = 3;
-        param.id = this.touchID;    //タッチＩＤ
-        if (this.mode != 0) param.visible = false;  //モードによって表示非表示の切り替え
-        this.addChild(param);
-        this.touches[this.touches.length] = param;  //タッチ配列に追加
-
-        // Maximum touch number in the sequence
-        if (this.touches.length > this.maxnumber) {
-            this.maxnumber = this.touches.length;
-        }
-        this.touchID++;
+    ontouchesstart: function(e) {
     },
 
-    ontouchmove: function(e) {
-        // It does treated as if you move the nearest pointer
-        var min = 99999;
-        var target = 9999;
-        for ( var i = 0, len = this.touches.length; i < len; i++) {
-            var x = e.x-this.touches[i].x;
-            var y = e.y-this.touches[i].y;
-            var dis = Math.sqrt(x*x+y*y);
-            if (dis < min) {
-                target = i;
-                min = dis;
-            }
-        }
-        this.touches[target].x = e.x-8;
-        this.touches[target].y = e.y-8;
+    ontouchesmove: function(e) {
     },
 
-    ontouchend: function(e) {
-        // It does treated as if you move the nearest pointer
-        var min = 99999;
-        var target = 9999;
-        for ( var i = 0, len = this.touches.length; i < len; i++) {
-            var x = e.x-this.touches[i].x;
-            var y = e.y-this.touches[i].y;
-            var dis = Math.sqrt(x*x+y*y);
-            if (dis < min) {
-                target = i;
-                min = dis;
-            }
-        }
-        // Delete Because you touch the end
-        this.removeChild(this.touches[target]);
-        this.touches.splice(target, 1);
-
-        // Change mode
-        if (this.touches.length == 0 && this.touchTime < 15 ) {
-            if (this.maxnumber == 1){
-                this.mode++;
-                this.mode %= 2;
-            }
-            this.maxnumber = 0;
-        }
+    ontouchesend: function(e) {
     },
 });
 
