@@ -133,6 +133,14 @@ enchant.MultiTouch = enchant.Class.create(enchant.Group, {
                 self.touchList.splice(0, 1);
             }
         });
+
+        // Intercept touchend to touchescancel.
+        scene.addEventListener("touchcancel",function(e) {
+            var evt = new enchant.Event("touchescancel");
+            evt.id = 0;
+            this.dispatchEvent(evt);
+            self.reset();
+        });
     },
 
     // Number of touch
